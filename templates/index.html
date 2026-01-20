@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureChat - End-to-End Encrypted Messaging</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Auth Container -->
+    <div id="auth-container" class="auth-container">
+        <div id="login-box" class="auth-box">
+            <div class="logo-container">
+                <i class="fas fa-shield-alt logo-icon"></i>
+                <h1>SecureChat</h1>
+            </div>
+            <h2>Welcome Back</h2>
+            <form id="login-form" class="auth-form">
+                <div class="input-group">
+                    <input type="text" id="login-username" placeholder="Username" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="primary-btn">Login</button>
+            </form>
+            <div class="auth-toggle">
+                Don't have an account? <a id="show-register">Register</a>
+            </div>
+        </div>
+
+        <div id="register-box" class="auth-box hidden">
+            <div class="logo-container">
+                <i class="fas fa-shield-alt logo-icon"></i>
+                <h1>SecureChat</h1>
+            </div>
+            <h2>Create Account</h2>
+            <form id="register-form" class="auth-form">
+                <div class="input-group">
+                    <input type="text" id="register-username" placeholder="Username" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="register-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="primary-btn">Register & Generate Keys</button>
+            </form>
+            <div class="auth-toggle">
+                Already have an account? <a id="show-login">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="app-container hidden">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <i class="fas fa-shield-alt logo-icon"></i>
+                <h1>SecureChat</h1>
+            </div>
+
+            <div class="user-section">
+                <!-- User info injected by JS -->
+            </div>
+
+            <input type="text" id="search-contacts" class="search-box" placeholder="Search contacts...">
+
+            <div class="contacts-header">
+                <span>Contacts</span>
+                <button id="refresh-contacts-btn" class="refresh-btn" title="Refresh Contacts">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <ul id="contacts-list" class="contacts-list">
+                <!-- Contacts injected by JS -->
+            </ul>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-screen" class="chat-area hidden">
+            <div class="chat-header">
+                <div class="chat-contact-info">
+                    <button class="back-btn" id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
+                    <div class="contact-avatar" id="header-avatar">?</div>
+                    <span class="chat-contact-name" id="current-contact">Select a contact</span>
+                </div>
+                <div class="encryption-badge">
+                    <i class="fas fa-lock"></i> End-to-End Encrypted
+                </div>
+            </div>
+
+            <div id="messages-container" class="messages-container">
+                <!-- Messages injected by JS -->
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="message-input" class="message-input" placeholder="Type a message...">
+                <button id="send-message-btn" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Welcome Screen (when no contact selected) -->
+        <div id="welcome-screen" class="chat-area">
+            <div class="welcome-screen">
+                <i class="fas fa-comments welcome-icon"></i>
+                <h2>Select a contact to start chatting</h2>
+                <p>Your messages are secured with end-to-end encryption.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Encryption Modal (Hidden by default) -->
+    <div id="encryption-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal-btn">&times;</span>
+            <h2>Encryption Details</h2>
+            <div id="encryption-details"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
