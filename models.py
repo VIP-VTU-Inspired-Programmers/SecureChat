@@ -13,6 +13,15 @@ class User(db.Model, UserMixin):
     public_key = db.Column(db.Text, nullable=True)
     private_key = db.Column(db.Text, nullable=True) # Encrypted with user's password (conceptually, or just stored for now)
     
+    # -------------------------------------------------------------------------
+    # PLACEHOLDERS FOR TRUST & SAFETY LAYER
+    # -------------------------------------------------------------------------
+    # These fields are reserved for future trust scoring and session verification.
+    # They are currently unused by the core application.
+    trust_score = db.Column(db.Integer, nullable=True, default=100)
+    session_metadata = db.Column(db.Text, nullable=True)  # JSON blob for device/security context
+    # -------------------------------------------------------------------------
+    
     # Relationships
     sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
     received_messages = db.relationship('Message', foreign_keys='Message.recipient_id', backref='recipient', lazy=True)

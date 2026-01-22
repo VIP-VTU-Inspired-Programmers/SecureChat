@@ -7,11 +7,10 @@ const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
 const showRegisterBtn = document.getElementById('show-register');
 const showLoginBtn = document.getElementById('show-login');
-
 const contactsList = document.getElementById('contacts-list');
 const refreshContactsBtn = document.getElementById('refresh-contacts-btn');
 const searchContactsInput = document.getElementById('search-contacts');
-const welcomeScreen = document.getElementById('welcome-screen');
+const dashboardView = document.getElementById('dashboard-view');
 const chatScreen = document.getElementById('chat-screen');
 const currentContactElement = document.getElementById('current-contact');
 const messagesContainer = document.getElementById('messages-container');
@@ -32,8 +31,22 @@ const state = {
     currentContact: null,
     contacts: [],
     messages: {},
-    isAuthenticated: false
+    isAuthenticated: false,
+    // [PLACEHOLDER] Security State for Trust Layer
+    securityState: {
+        trustScore: 100,
+        verificationStatus: 'unverified',
+        localSession: false
+    },
+    onlineUsers: new Set()
 };
+
+// [PLACEHOLDER] Trust Event Handler
+// This function is reserved for future trust verification logic.
+function handleTrustEvent(event) {
+    console.log('[TRUST EVENT]', event);
+    // Future: Update UI based on trust score
+}
 
 // Socket Events
 socket.on('connect', () => {
@@ -47,6 +60,29 @@ socket.on('new_message', (data) => {
     if (state.currentContact !== data.sender) {
         showNotification(`New message from ${data.sender}`, 'success');
     }
+});
+
+socket.on('security_alert', (data) => {
+    console.warn('[SECURITY ALERT]', data);
+    showNotification(`Security Alert: ${data.message}`, 'error');
+
+    // Pass to Trust Layer if available
+    if (window.handleTrustEvent) {
+        window.handleTrustEvent({
+            type: 'SECURITY_ALERT',
+            payload: data
+        });
+    }
+
+    // Refresh dashboard to show new status
+    fetchDashboardData();
+});
+
+socket.on('user_online', (data) => {
+    console.log('User online:', data.username);
+    state.onlineUsers.add(data.username);
+    renderContacts();
+    showNotification(`${data.username} is now online`, 'success');
 });
 
 // Event Listeners
@@ -87,6 +123,14 @@ if (backToContactsBtn) {
     backToContactsBtn.addEventListener('click', () => {
         document.getElementById('chat-screen').classList.remove('active');
         state.currentContact = null;
+        // On mobile, this reveals the sidebar/dashboard underneath.
+        // On desktop, we might want to show dashboard again:
+        if (window.innerWidth > 768) {
+            const dashboardView = document.getElementById('dashboard-view');
+            const chatScreen = document.getElementById('chat-screen');
+            chatScreen.classList.add('hidden');
+            dashboardView.classList.remove('hidden');
+        }
     });
 }
 
@@ -100,6 +144,7 @@ async function checkAuth() {
         if (data.authenticated) {
             state.currentUser = data.username;
             state.isAuthenticated = true;
+            updateUserUI(state.currentUser);
             showApp();
         } else {
             showAuth();
@@ -119,8 +164,8 @@ function showApp() {
     authContainer.classList.add('hidden');
     appContainer.classList.remove('hidden');
     loadContacts();
-    // No more polling!
-    // startMessagePolling();
+    fetchDashboardData();
+    renderEmptyState();
 
     // Add logout button to sidebar if not exists
     if (!document.getElementById('logout-btn')) {
@@ -128,6 +173,10 @@ function showApp() {
         userSection.innerHTML = `
             <div class="user-info">
                 <span class="user-name">${state.currentUser}</span>
+                <!-- [PLACEHOLDER] Local Session Indicator -->
+                <span id="local-session-indicator" class="session-indicator hidden" style="display:none">
+                    <i class="fas fa-wifi"></i>
+                </span>
                 <button id="logout-btn" class="logout-btn">Logout</button>
             </div>
             <div id="key-status" class="key-status">
@@ -154,8 +203,8 @@ async function handleLogin(e) {
         const data = await response.json();
 
         if (data.success) {
-            state.currentUser = username;
             state.isAuthenticated = true;
+            updateUserUI(username);
 
             // Force socket reconnection to ensure we join the correct room
             if (socket.connected) {
@@ -189,8 +238,8 @@ async function handleRegister(e) {
         const data = await response.json();
 
         if (data.success) {
-            state.currentUser = username;
             state.isAuthenticated = true;
+            updateUserUI(username);
 
             // Force socket reconnection
             if (socket.connected) {
@@ -248,21 +297,25 @@ async function loadContacts() {
 function renderContacts() {
     contactsList.innerHTML = '';
 
-    if (state.contacts.length === 0) {
-        const noContactsElement = document.createElement('li');
-        noContactsElement.className = 'contact-item';
-        noContactsElement.innerHTML = '<i class="fas fa-info-circle"></i> No contacts found';
-        contactsList.appendChild(noContactsElement);
-        return;
-    }
-
     state.contacts.forEach(contact => {
         const contactElement = document.createElement('li');
         contactElement.className = 'contact-item';
+        contactElement.dataset.username = contact;
+
         if (state.currentContact === contact) {
             contactElement.classList.add('active');
         }
-        contactElement.innerHTML = `<i class="fas fa-user"></i> ${contact}`;
+
+        contactElement.innerHTML = `
+            <div class="contact-avatar">${contact.charAt(0).toUpperCase()}</div>
+            <div class="contact-info-group" style="display:flex; flex-direction:column;">
+                <span class="contact-name">${contact}</span>
+                <span class="contact-status ${state.onlineUsers.has(contact) ? 'online' : 'offline'}" style="font-size:0.7rem; color:var(--text-muted)">
+                    ${state.onlineUsers.has(contact) ? 'Online' : 'Offline'}
+                </span>
+            </div>
+            ${state.onlineUsers.has(contact) ? '<span class="status-dot"></span>' : ''}
+        `;
 
         contactElement.addEventListener('click', () => {
             selectContact(contact);
@@ -286,6 +339,15 @@ function filterContacts() {
     });
 }
 
+function updateUserUI(username) {
+    state.currentUser = username;
+    // Update dashboard and headers
+    document.querySelectorAll('.current-username-display').forEach(el => el.textContent = username);
+    // Update sidebar user info
+    const sidebarName = document.querySelector('.user-info .user-name');
+    if (sidebarName) sidebarName.textContent = username;
+}
+
 function selectContact(contact) {
     state.currentContact = contact;
     currentContactElement.textContent = contact;
@@ -298,13 +360,13 @@ function selectContact(contact) {
     // Update active state in list
     document.querySelectorAll('.contact-item').forEach(item => {
         item.classList.remove('active');
-        if (item.textContent.includes(contact)) {
+        if (item.dataset.username === contact) {
             item.classList.add('active');
         }
     });
 
     // Switch to chat screen
-    welcomeScreen.classList.add('hidden');
+    if (dashboardView) dashboardView.classList.add('hidden');
     chatScreen.classList.remove('hidden');
 
     // For mobile: show chat area
@@ -408,13 +470,7 @@ async function fetchStoredMessages() {
     if (!state.currentUser || !state.currentContact) return;
 
     try {
-        // Note: The API currently returns ALL messages involving the user
-        // We should filter them client-side or update API to filter by contact
-        // For now, let's use the existing endpoint which returns all messages for the user
-        // Wait, the API I wrote returns messages where current_user is sender OR recipient.
-        // So we get everything.
-
-        const response = await fetch(`/api/get-stored-messages/${state.currentUser}`);
+        const response = await fetch(`/api/get-stored-messages/${state.currentContact}`);
         if (response.status === 401) return;
 
         const data = await response.json();
@@ -422,14 +478,7 @@ async function fetchStoredMessages() {
         if (data.success) {
             // Process all messages
             for (const msg of data.messages) {
-                // We need to decrypt if it's encrypted and we haven't already
-                // But wait, the API returns encrypted content.
-                // We need to decrypt it.
-
-                // Only process messages involving currentContact
-                if (msg.sender === state.currentContact || msg.recipient === state.currentContact) {
-                    await processEncryptedMessage(msg);
-                }
+                await processEncryptedMessage(msg);
             }
 
             if (state.currentContact) {
@@ -480,6 +529,8 @@ async function processEncryptedMessage(msg) {
         }
     } catch (error) {
         console.error('Decryption failed:', error);
+        // [PLACEHOLDER] Future: Report decryption failure to trust layer
+        handleTrustEvent({ type: 'DECRYPTION_FAILURE', error: error.message });
     }
 }
 
@@ -538,4 +589,43 @@ function showNotification(message, type) {
         notification.style.opacity = '0';
         setTimeout(() => notification.remove(), 300);
     }, 5000);
+}
+
+async function fetchDashboardData() {
+    if (!state.isAuthenticated) return;
+
+    try {
+        const response = await fetch('/api/dashboard');
+        if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+
+        const data = await response.json();
+        console.log('[DASHBOARD] Stats:', data);
+
+        // Update Active Sockets
+        const countEl = document.getElementById('active-session-count');
+        if (countEl) {
+            countEl.textContent = data.active_sockets || 1;
+        }
+
+        // Update Events Summary
+        const eventsEl = document.getElementById('security-events-summary');
+        if (eventsEl) {
+            const count = data.event_count || 0;
+            eventsEl.textContent = `${count} Security Event${count !== 1 ? 's' : ''} Logged`;
+        }
+
+    } catch (error) {
+        console.warn('[DASHBOARD] Could not load stats:', error);
+    }
+}
+
+function renderEmptyState() {
+    state.currentContact = null;
+    if (dashboardView) dashboardView.classList.remove('hidden');
+    if (chatScreen) chatScreen.classList.add('hidden');
+
+    // Clear active state from contacts
+    document.querySelectorAll('.contact-item').forEach(item => {
+        item.classList.remove('active');
+    });
 }

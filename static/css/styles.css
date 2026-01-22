@@ -1,33 +1,38 @@
 /* Modern Design System */
 :root {
-    /* Color Palette */
-    --bg-gradient-start: #0f0c29;
-    --bg-gradient-mid: #302b63;
-    --bg-gradient-end: #24243e;
+    /* Color Palette - Enterprise Dark Theme */
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-mid: #1e293b;
+    --bg-gradient-end: #0f172a;
 
-    --primary-color: #6C63FF;
-    --primary-hover: #5a52d5;
-    --secondary-color: #00D2FF;
+    --sidebar-bg: #1e293b;
+    --chat-bg: #111827;
+    --card-bg: #1f2937;
 
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary-color: #06b6d4;
 
-    --text-main: #ffffff;
-    --text-muted: rgba(255, 255, 255, 0.7);
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: #374151;
+    --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 
-    --success-color: #00b894;
-    --error-color: #ff7675;
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --text-dark: #1f2937;
+
+    --success-color: #10b981;
+    --error-color: #ef4444;
 
     /* Spacing & Layout */
-    --border-radius: 16px;
+    --border-radius: 12px;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
-    --spacing-lg: 2rem;
+    --spacing-lg: 1.5rem;
 
     /* Transitions */
     --transition-fast: 0.2s ease;
-    --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -81,16 +86,15 @@ body {
 /* Sidebar */
 .sidebar {
     width: 300px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--border-radius);
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--glass-border);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
     display: flex;
     flex-direction: column;
     padding: var(--spacing-md);
-    box-shadow: var(--glass-shadow);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
     transition: transform var(--transition-smooth);
+    z-index: 10;
 }
 
 .logo-container {
@@ -180,7 +184,8 @@ body {
 }
 
 .search-box {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(20, 20, 40, 0.6);
+    /* Darker background */
     border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: 8px 12px;
@@ -191,7 +196,12 @@ body {
     transition: var(--transition-fast);
 }
 
+.search-box::placeholder {
+    color: var(--text-muted);
+}
+
 .search-box:focus {
+    background: rgba(20, 20, 40, 0.8);
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
 }
@@ -237,11 +247,10 @@ body {
 /* Main Chat Area */
 .chat-area {
     flex-grow: 1;
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--chat-bg);
     border: 1px solid var(--glass-border);
-    border-radius: var(--border-radius);
+    border-left: none;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
     display: flex;
     flex-direction: column;
     box-shadow: var(--glass-shadow);
@@ -355,10 +364,12 @@ body {
 }
 
 .message.received .message-content {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--glass-border);
+    background: #374151;
+    /* Dark neutral */
+    border: none;
     color: var(--text-main);
     border-bottom-left-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .message-time {
@@ -379,7 +390,7 @@ body {
 
 .message-input {
     flex-grow: 1;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(20, 20, 40, 0.6);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
     padding: 12px 20px;
@@ -388,8 +399,12 @@ body {
     transition: var(--transition-fast);
 }
 
+.message-input::placeholder {
+    color: var(--text-muted);
+}
+
 .message-input:focus {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 40, 0.8);
     border-color: var(--primary-color);
 }
 
@@ -405,7 +420,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: var(--transition-fast);
-    box-shadow: 0 4px 10px rgba(108, 99, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
 .send-btn:hover {

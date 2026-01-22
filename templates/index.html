@@ -57,11 +57,14 @@
 
     <!-- Main App Container -->
     <div id="app-container" class="app-container hidden">
-        <!-- Sidebar -->
+        <!-- [PLACEHOLDER] Security Alert Banner (Hidden) -->
+        <div id="security-alert-banner" class="security-banner hidden"></div>
+
+        <!-- Sidebar (Contacts) -->
         <div class="sidebar">
             <div class="logo-container">
                 <i class="fas fa-shield-alt logo-icon"></i>
-                <h1>SecureChat</h1>
+                <h2>SecureChat</h2>
             </div>
 
             <div class="user-section">
@@ -82,39 +85,88 @@
             </ul>
         </div>
 
-        <!-- Chat Area -->
-        <div id="chat-screen" class="chat-area hidden">
-            <div class="chat-header">
-                <div class="chat-contact-info">
-                    <button class="back-btn" id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
-                    <div class="contact-avatar" id="header-avatar">?</div>
-                    <span class="chat-contact-name" id="current-contact">Select a contact</span>
+        <!-- Main Content Area -->
+        <div class="main-content">
+
+            <!-- Dashboard View (Default) -->
+            <div id="dashboard-view" class="dashboard-panel">
+                <div class="dashboard-header">
+                    <h2>System Status</h2>
+                    <span id="security-badge-dashboard" class="security-badge secure"><i
+                            class="fas fa-check-circle"></i> SECURE</span>
                 </div>
-                <div class="encryption-badge">
-                    <i class="fas fa-lock"></i> End-to-End Encrypted
+
+                <div class="dashboard-grid">
+                    <!-- Session Card -->
+                    <div class="dash-card session-card">
+                        <div class="card-icon"><i class="fas fa-user-shield"></i></div>
+                        <div class="card-info">
+                            <h3>Active Session</h3>
+                            <p>Logged in as <strong class="current-username-display">...</strong></p>
+                            <span class="status-indicator online" id="active-session-indicator">Online (<span
+                                    id="active-session-count">1</span> Device)</span>
+                        </div>
+                    </div>
+
+                    <!-- Security Card -->
+                    <div class="dash-card security-card">
+                        <div class="card-icon"><i class="fas fa-lock"></i></div>
+                        <div class="card-info">
+                            <h3>Security Status</h3>
+                            <p id="security-status-text">System Encrypted & Verified</p>
+                            <div id="security-events-summary" style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                            </div>
+                            <button class="btn-text"
+                                onclick="window.handleTrustEvent && window.handleTrustEvent({type: 'TEST_LOG'}) || console.log('Log view')">View
+                                Logs</button>
+                        </div>
+                    </div>
+
+                    <!-- Encryption Card -->
+                    <div class="dash-card crypto-card">
+                        <div class="card-icon"><i class="fas fa-key"></i></div>
+                        <div class="card-info">
+                            <h3>E2E Encryption</h3>
+                            <p>RSA-2048 + AES-256</p>
+                            <span class="status-indicator active">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-placeholder">
+                    <i class="fas fa-comments welcome-icon"></i>
+                    <p>Select a contact from the sidebar to start a secure conversation.</p>
                 </div>
             </div>
 
-            <div id="messages-container" class="messages-container">
-                <!-- Messages injected by JS -->
+            <!-- Chat Screen (Hidden) -->
+            <div id="chat-screen" class="chat-area hidden">
+                <div class="chat-header">
+                    <div class="chat-contact-info">
+                        <button class="back-btn" id="back-to-contacts"><i class="fas fa-arrow-left"></i></button>
+                        <div class="contact-avatar" id="header-avatar">?</div>
+                        <span class="chat-contact-name" id="current-contact">Select a contact</span>
+                    </div>
+                    <div class="encryption-badge">
+                        <i class="fas fa-lock"></i> End-to-End Encrypted
+                        <!-- [PLACEHOLDER] Dynamic Security Badge (Hidden) -->
+                        <div id="security-badge-container" class="security-badge-addon hidden"></div>
+                    </div>
+                </div>
+
+                <div id="messages-container" class="messages-container">
+                    <!-- Messages injected by JS -->
+                </div>
+
+                <div class="input-area">
+                    <input type="text" id="message-input" class="message-input" placeholder="Type a message...">
+                    <button id="send-message-btn" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
 
-            <div class="input-area">
-                <input type="text" id="message-input" class="message-input" placeholder="Type a message...">
-                <button id="send-message-btn" class="send-btn">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Welcome Screen (when no contact selected) -->
-        <div id="welcome-screen" class="chat-area">
-            <div class="welcome-screen">
-                <i class="fas fa-comments welcome-icon"></i>
-                <h2>Select a contact to start chatting</h2>
-                <p>Your messages are secured with end-to-end encryption.</p>
-            </div>
-        </div>
+        </div> <!-- End Main Content -->
     </div>
 
     <!-- Notification Container -->
@@ -131,6 +183,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
     <script src="/static/js/app.js"></script>
+    <!-- [ACTIVATION] Trust & Safety Layer -->
+    <script src="/static/js/trust_layer.js"></script>
 </body>
 
 </html>
