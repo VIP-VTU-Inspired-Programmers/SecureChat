@@ -19,7 +19,7 @@ from session_manager.core import session_manager
 # -----------------------------------------------------------------------------
 # APP SETUP
 # -----------------------------------------------------------------------------
-app = Flask(__name__, static_folder="static")
+app = Flask(__name__, static_folder="static",template_folder="templates",static_url_path="/static")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-key-change-this")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "sqlite:///chat.db"
